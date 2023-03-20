@@ -1,0 +1,20 @@
+{
+  "name": "get-dealership",
+  "version": "1.0.0",
+  "description": "",
+  "main": "get-dealership.js",
+  "scripts": {
+    "start": "node get-dealership.js",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "npx eslint . --ext .js --ignore-pattern node_modules/"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@ibm-cloud/cloudant": "^0.4.1"
+  },
+  "devDependencies": {
+    "eslint": "^8.27.0"
+  }
+}
