@@ -3,12 +3,13 @@ from django.http import HttpResponseRedirect, HttpResponse
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404, render, redirect
 #from .models import CarDealer
-from .restapis import get_dealers_from_cf, get_dealer_by_state_from_cf, get_dealer_reviews_from_cf
+from .restapis import get_dealers_from_cf, get_dealer_by_state_from_cf, get_dealer_reviews_from_cf,post_request
 from django.contrib.auth import login, logout, authenticate
 from django.contrib import messages
 from datetime import datetime
 import logging
 import json
+import uuid
 
 # Get an instance of a logger
 logger = logging.getLogger(__name__)
@@ -122,6 +123,39 @@ def get_dealer_details(request, dealer_id):
         reviews = get_dealer_reviews_from_cf(url,dealerId=dealer_id)
         reviews_names = ' | '.join([review.name+" ["+str(review.sentiment)+"] "+str(review.review) for review in reviews])
         return HttpResponse(reviews_names)
+
 # Create a `add_review` view to submit a review
-# def add_review(request, dealer_id):
-# ...
+def add_review(request, dealer_id):
+    if not request.user.is_authenticated:
+        messages.error(request,'Error: you need to login first')
+        return redirect('djangoapp:index')
+# {
+# "review": 
+#     {
+#         "id": "11142",
+#         "name": "Upkar Lidder",
+#         "dealership": 15,
+#         "review": "Great service!",
+#         "purchase": false,
+#         "another": "field",
+#         "purchase_date": "02/16/2021",
+#         "car_make": "Audi",
+#         "car_model": "Car",
+#         "car_year": 2021
+#     }
+# }
+    url="https://eu-gb.functions.appdomain.cloud/api/v1/web/803af88f-d896-4246-b09f-45e37f258fa9/api/review.json"
+    current_user=request.user.username
+    if request.user.first_name!='' or request.user.last_name!='':
+        current_user=request.user.first_name+" "+request.user.last_name
+    review = dict()
+    review["id"] = uuid.uuid4().hex
+    review["name"] = current_user
+    review["dealership"] = dealer_id
+    review["review"] = "This is a great car dealer"
+    json_payload=dict()
+    json_payload["review"] = review
+    result=post_request(url, json_payload)
+    print(json_payload)
+    return HttpResponse(str(result))
+
