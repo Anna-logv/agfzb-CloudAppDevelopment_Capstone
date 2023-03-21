@@ -52,16 +52,29 @@ def main(param_dict):
         
     new_review=param_dict["review"]
     
-    keys=["id","name","dealership","review","purchase","another","purchase_date","car_make","car_model","car_year"]   
-    if not all(key in new_review for key in keys):
+   
+    required_keys=["id","name","dealership","review"]
+    if not all(key in new_review for key in required_keys):
         return { 'statusCode':500, 'message': 'Something went wrong on the server' }
     
+    if not "purchase" in new_review:
+        new_review["purchase"]=False
+    if not "another" in new_review:
+        new_review["another"]=""        
+    if not "purchase_date" in new_review:
+        new_review["purchase_date"]=""   
+    if not "car_make" in new_review:
+        new_review["car_make"]=""   
+    if not "car_mode" in new_review:
+        new_review["car_model"]=""  
+    if not "car_year" in new_review:
+        new_review["car_year"]=0          
     try:
         response = service.get_document(db='reviews',doc_id=str(new_review["id"])).get_result()
         rev=str(response["_rev"])
     except:
         rev=""
-
+    #return { 'statusCode':50521, 'message': new_review["purchase_date"] }
     if rev=="":
         products_doc = Document(
             id = str(new_review["id"]),
