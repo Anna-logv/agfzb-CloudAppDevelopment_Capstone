@@ -68,7 +68,7 @@ function getDbs(cloudant) {
  */
  function getAllRecords(cloudant,dbname) {
      return new Promise((resolve, reject) => {
-         cloudant.postAllDocs({ db: dbname, includeDocs: true, limit: 10 })            
+         cloudant.postAllDocs({ db: dbname, includeDocs: true, limit: 100 })            
              .then((result)=>{
                resolve({result:result.result.rows,});
              })

@@ -7,11 +7,69 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
 </head>
 
-    <body>
+    <div>
 
     <!--Add a nav bar here -->
-
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="{% url 'djangoapp:index' %}">Dealership Review</a>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                    <a class="nav-link" href="{% url 'djangoapp:contact' %}">Contact Us</a>
+                    </li>
+                    <li class="nav-item">
+                    <a class="nav-link" href="{% url 'djangoapp:about' %}">About Us</a>
+                    </li>
+                </ul>
+                </div>
+            <ul class="nav navbar-nav navbar-right">
+                {% if user.is_authenticated %}
+                <li>
+                    <a class="btn btn-link" href="{% url 'djangoapp:add_review' dealer_id %}">Add Review</a>
+                    <a class="btn btn-link" href="#">{{ user.first_name }}({{ user.username }})</a>
+                    <a class="btn btn-link" href="{% url 'djangoapp:logout' %}">Logout</a>
+                </li>
+                {% else %}
+                <li>
+                    <form class="form-inline" action="{% url 'djangoapp:login' %}" method="post">
+                        {% csrf_token %}
+                        <div class="input-group">
+                            <input type="text" class="form-control" placeholder="Username" name="username" >
+                            <input type="password" class="form-control" placeholder="Password" name="psw" >
+                            <button class="btn btn-primary rounded-3" type="submit">Login</button>
+                            <a class="btn btn-link" href="{% url 'djangoapp:registration' %}">Sign Up</a>
+                        </div>
+                    </form>
+                </li>
+                {% endif %}
+            </ul>
+        </div>
+    </nav>
     <!-- Add reviews as cards -->
+    <div class="container p-4">
+        <h2>Reviews for <strong>{{dealer_name}}</strong></h2>
+        <div class="card-columns">
+            {% for review in reviews_list %}
+            <div class="card">
+                <div class="col-2 p-2"><img class="card-img-left img-fluid" src="{{MEDIA_URL}}emoji/{{review.sentiment}}.png"/></div>
+                <div class="card-body">
+                    {% if review.car_make != '' %}
+                    <h4 class="card-title">
+                        {{review.car_make}}{% if review.car_make != '' %}, {{review.car_model}}{% endif %}
+                    </h4>
+                    {% endif %}
+                    {% if review.car_year > 0 %}
+                    <h5 class="card-title">{{review.car_year}}</h5>
+                    {% endif %}
+                    <div class="card-text">{{review.review}}</div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+
 
     </body>
 

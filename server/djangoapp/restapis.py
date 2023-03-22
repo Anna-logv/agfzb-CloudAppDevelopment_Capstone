@@ -86,7 +86,7 @@ def analyze_review_sentiments(dealerreview):
 # sad: An unpleasant passive emotion
 # satisfied: An affective response to perceived service quality
 # sympathetic: An affective mode of understanding that involves emotional resonance
- 
+
     watson_url="https://api.au-syd.natural-language-understanding.watson.cloud.ibm.com/instances/efb40c20-765a-48ac-85b3-92eb30fc25f6"
     watson_api_key="qFQF2dmUdUVUl0dOh7PUpkK_wB8RncfejvEkT-a_6TDY"
 
@@ -101,17 +101,23 @@ def analyze_review_sentiments(dealerreview):
             text=dealerreview,
             features=Features(classifications=ClassificationsOptions(model='tone-classifications-en-v1'))).get_result()
     except:
-        return ""
+        return "neutral"
     if not "classifications" in response:
-        return ""
+        return "neutral"
     max_confidence=0
     tone=""
     for row in response["classifications"]:
         if float(row["confidence"])>max_confidence:
             max_confidence=row["confidence"]
             tone=str(row["class_name"])
-    print(json.dumps(response, indent=2))
-    return tone
+    #print(json.dumps(response, indent=2))
+    tones_positive=["excited","satisfied","sympathetic"]
+    tones_negative=["frustrated","impolite","sad"]
+    if tone in tones_positive:
+        return "positive"
+    if tone in tones_negative:
+        return "negative"
+    return "neutral"
 
 # Create a get_dealer_reviews_from_cf method to get reviews by dealer id from a cloud function
 def get_dealer_reviews_from_cf(url, **kwargs):

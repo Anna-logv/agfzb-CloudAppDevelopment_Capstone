@@ -30,7 +30,7 @@ def main(param_dict):
             dealer_id=int(dealer_id_str)
     
         if (dealer_id==0):
-            response = service.post_all_docs(db='reviews', include_docs=True,limit=1000).get_result()  
+            response = service.post_all_docs(db='reviews', include_docs=True,limit=100).get_result()  
             for row in response["rows"]:
                 entries.append(row["doc"])
         else:

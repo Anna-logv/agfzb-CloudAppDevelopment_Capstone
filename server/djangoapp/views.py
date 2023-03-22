@@ -101,7 +101,6 @@ def get_dealerships_old(request):
         return render(request, 'djangoapp/index.html', context)
 
 
-# Create a `get_dealer_details` view to render the reviews of a dealer
 def get_dealerships(request):
     if request.method == "GET":
         context={}
@@ -119,13 +118,26 @@ def get_dealerships(request):
         # Return a list of dealer short name
         #return HttpResponse(dealer_names)
         return render(request, 'djangoapp/index.html', context)
-    
+
+# Create a `get_dealer_details` view to render the reviews of a dealer
 def get_dealer_details(request, dealer_id):
     if request.method == "GET":
+        context={}
+        context["dealer_name"]=""
+
+        url="https://eu-gb.functions.appdomain.cloud/api/v1/web/803af88f-d896-4246-b09f-45e37f258fa9/api/dealership.json"
+        dealerships = get_dealers_from_cf(url)
+        for dealer in dealerships:
+            if int(dealer.id)==int(dealer_id):
+               context["dealer_name"]=dealer.full_name
+
         url="https://eu-gb.functions.appdomain.cloud/api/v1/web/803af88f-d896-4246-b09f-45e37f258fa9/api/review.json"
         reviews = get_dealer_reviews_from_cf(url,dealerId=dealer_id)
-        reviews_names = ' | '.join([review.name+" ["+str(review.sentiment)+"] "+str(review.review) for review in reviews])
-        return HttpResponse(reviews_names)
+        context["reviews_list"]=reviews
+        context["dealer_id"]=dealer_id
+        #reviews_names = ' | '.join([review.name+" ["+str(review.sentiment)+"] "+str(review.review) for review in reviews])
+        #return HttpResponse(reviews_names)
+        return render(request, 'djangoapp/dealer_details.html', context)
 
 # Create a `add_review` view to submit a review
 def add_review(request, dealer_id):
@@ -159,6 +171,6 @@ def add_review(request, dealer_id):
     json_payload=dict()
     json_payload["review"] = review
     result=post_request(url, json_payload)
-    print(json_payload)
+    #print(json_payload)
     return HttpResponse(str(result))
 
