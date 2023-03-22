@@ -65,7 +65,7 @@ def main(param_dict):
         new_review["purchase_date"]=""   
     if not "car_make" in new_review:
         new_review["car_make"]=""   
-    if not "car_mode" in new_review:
+    if not "car_model" in new_review:
         new_review["car_model"]=""  
     if not "car_year" in new_review:
         new_review["car_year"]=0          
