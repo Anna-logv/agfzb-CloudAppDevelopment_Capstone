@@ -60,9 +60,9 @@
         {% if messages %}
             {% for message in messages %}
                 {% if 'error' in message.tags %}
-                    <div  class="alert alert-danger"> {{ message }} </li>
+                    <div  class="alert alert-danger"> {{ message }} </div>
                 {% else %}
-                    <div  class="alert alert-{{message.tags}}"> {{ message }} </li>
+                    <div  class="alert alert-{{message.tags}}"> {{ message }} </div>
                 {% endif %}
             {% endfor %}
         {% endif %}

@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.http import HttpResponseRedirect, HttpResponse
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404, render, redirect
-#from .models import CarDealer
+from .models import CarModel
 from .restapis import get_dealers_from_cf, get_dealer_by_state_from_cf, get_dealer_reviews_from_cf,post_request
 from django.contrib.auth import login, logout, authenticate
 from django.contrib import messages
@@ -159,18 +159,50 @@ def add_review(request, dealer_id):
 #         "car_year": 2021
 #     }
 # }
-    url="https://eu-gb.functions.appdomain.cloud/api/v1/web/803af88f-d896-4246-b09f-45e37f258fa9/api/review.json"
-    current_user=request.user.username
-    if request.user.first_name!='' or request.user.last_name!='':
-        current_user=request.user.first_name+" "+request.user.last_name
-    review = dict()
-    review["id"] = uuid.uuid4().hex
-    review["name"] = current_user
-    review["dealership"] = dealer_id
-    review["review"] = "This is a great car dealer"
-    json_payload=dict()
-    json_payload["review"] = review
-    result=post_request(url, json_payload)
-    #print(json_payload)
-    return HttpResponse(str(result))
+    context={}
+    context["dealer_id"]=dealer_id
+    if request.method == "POST":
+        url="https://eu-gb.functions.appdomain.cloud/api/v1/web/803af88f-d896-4246-b09f-45e37f258fa9/api/review.json"
+        current_user=request.user.username
+        if request.user.first_name!='' or request.user.last_name!='':
+            current_user=request.user.first_name+" "+request.user.last_name
+        data = request.POST
 
+        purchasecheck = data.get("purchasecheck")=='on'
+        content = data.get("content")
+        car=data.get("car")
+        purchasedate=data.get("purchasedate")
+        car_model=CarModel.objects.get(pk=car)
+        review = dict()
+        review["id"] = uuid.uuid4().hex
+        review["name"] = current_user
+        review["dealership"] = dealer_id
+        review["review"] = content
+        review["purchase"] = purchasecheck
+        review["purchase_date"] = purchasedate
+        review["car_make"] = car_model.carmake.name
+        review["car_model"] = car_model.name
+        review["car_year"] = car_model.year.strftime("%Y")
+
+        json_payload=dict()
+        json_payload["review"] = review
+        result=post_request(url, json_payload)
+        print(json_payload)
+        if not "result" in result:
+            messages.error(request,'Error: unable to save review. Try again later')
+            return redirect('djangoapp:index')
+        if not "ok" in result["result"]:
+            messages.error(request,'Error: unable to save review. Try again later')
+            return redirect('djangoapp:index')
+        messages.success(request,'Thank you! Your review has been saved')
+        return redirect('djangoapp:dealer_details', dealer_id)
+        return HttpResponse(str(result))
+    
+    url="https://eu-gb.functions.appdomain.cloud/api/v1/web/803af88f-d896-4246-b09f-45e37f258fa9/api/dealership.json"
+    dealerships = get_dealers_from_cf(url)
+    for dealer in dealerships:
+        if int(dealer.id)==int(dealer_id):
+            context["dealer_name"]=dealer.full_name
+
+    context["cars"]=CarModel.objects.filter(dealer_id=dealer_id)
+    return render(request, 'djangoapp/add_review.html', context)

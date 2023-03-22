@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
 </head>
 
-    <div>
+
 
     <!--Add a nav bar here -->
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
@@ -48,6 +48,15 @@
     </nav>
     <!-- Add reviews as cards -->
     <div class="container p-4">
+        {% if messages %}
+            {% for message in messages %}
+                {% if 'error' in message.tags %}
+                    <div  class="alert alert-danger"> {{ message }} </div>
+                {% else %}
+                    <div  class="alert alert-{{message.tags}}"> {{ message }} </div>
+                {% endif %}
+            {% endfor %}
+        {% endif %}
         <h2>Reviews for <strong>{{dealer_name}}</strong></h2>
         <div class="card-columns">
             {% for review in reviews_list %}
